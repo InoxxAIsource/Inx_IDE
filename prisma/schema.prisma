@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  walletAddress String?   @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  projects      Project[]
+}
+
+model Project {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  projectType String      @default("component")
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  components  Component[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Component {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  code        String   @db.Text
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SmartContract {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  chainId     Int
+  abi         String   @db.Text
+  bytecode    String?  @db.Text
+  projectId   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
